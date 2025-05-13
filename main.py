@@ -1,14 +1,28 @@
 import tkinter as tk
+
+from data.bidmc import get_bidmc_csv_data
 from monitor_ui import MonitorUI
 import random
 
-def simulate_data():
-    monitor_ui.update_heart_rate(random.randint(60, 100))
-    monitor_ui.update_spo2(random.randint(95, 100))
-    monitor_ui.update_temperature(random.randint(10, 30))
-    monitor_ui.update_blood_pressure(random.randint(110, 130), random.randint(70, 90))
+import neurokit2 as nk
+import numpy as np
 
-    root.after(3000, simulate_data)
+ecg_signal = nk.ecg_simulate(duration=10, sampling_rate=500)
+
+def simulate_data():
+    heart_rates, respiration, spo2 = get_bidmc_csv_data("https://www.physionet.org/files/bidmc/1.0.0/bidmc_csv/bidmc_03_Numerics.csv")
+
+    def update_monitor(i):
+        if i > len(heart_rates):
+            return
+        monitor_ui.update_heart_rate(heart_rates[i])
+        monitor_ui.update_spo2(spo2[i])
+        monitor_ui.update_respiration(respiration[i])
+        monitor_ui.update_blood_pressure(random.randint(119, 121), random.randint(79, 81))
+
+        root.after(1000, lambda: update_monitor(i + 1))
+
+    update_monitor(0)
 
 root = tk.Tk()
 monitor_ui = MonitorUI(root)
