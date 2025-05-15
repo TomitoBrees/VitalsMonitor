@@ -5,12 +5,24 @@ from monitor_ui import MonitorUI
 import random
 
 import neurokit2 as nk
-import numpy as np
+
+import pygame
+import threading
+
+DATA_SOURCE = 3
+
+pygame.mixer.init()
+beep_sound = pygame.mixer.Sound("assets/beep.wav")
+
+def play_beep():
+    threading.Thread(target=beep_sound.play, daemon=True).start()
+    root.after(3000, play_beep)
+
 
 ecg_signal = nk.ecg_simulate(duration=10, sampling_rate=500)
 
 def simulate_data():
-    heart_rates, respiration, spo2 = get_bidmc_csv_data("https://www.physionet.org/files/bidmc/1.0.0/bidmc_csv/bidmc_03_Numerics.csv")
+    heart_rates, respiration, spo2 = get_bidmc_csv_data(DATA_SOURCE)
 
     def update_monitor(i):
         if i > len(heart_rates):
@@ -24,8 +36,10 @@ def simulate_data():
 
     update_monitor(0)
 
+
 root = tk.Tk()
 monitor_ui = MonitorUI(root)
 
 simulate_data()
+play_beep()
 root.mainloop()

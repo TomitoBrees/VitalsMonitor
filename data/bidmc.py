@@ -1,10 +1,16 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-def get_bidmc_csv_data(url):
+def get_bidmc_csv_data(n):
+    if n <= 0 or n > 53:
+        raise Exception("The file number should be between 0 and 53")
 
-    # Import the csv from physionet
-    df = pd.read_csv(url)
+    if 0 < n < 10:
+        file_n = "0" + str(n)
+    else:
+        file_n = str(n)
+
+    df = pd.read_csv(f"https://www.physionet.org/files/bidmc/1.0.0/bidmc_csv/bidmc_{file_n}_Numerics.csv")
 
     # Strip the column names
     df.columns = df.columns.str.strip()
