@@ -45,13 +45,23 @@ class MonitorUI:
         self.main_frame.pack(fill="both", expand=True)
 
         # Left: vitals panel
-        self.left_frame = tk.Frame(self.main_frame, bg="black", height=390, width=700)
+        self.left_frame = tk.Frame(self.main_frame, bg="black", height=500, width=700)
         self.left_frame.pack(side="left", fill="x", anchor="n", pady=15)
         self.left_frame.pack_propagate(False)
 
         # Right: waveform panel
         self.right_frame = tk.Frame(self.main_frame, bg="black")
         self.right_frame.pack(side="right")
+
+        # Buttons
+        self.button_panel = tk.Frame(self.left_frame, height=50, bg="black")
+        self.button_panel.pack(side="bottom", pady=(45, 0))
+
+        self.start_button = tk.Button(self.button_panel, text="Start", width=5, height=2)
+        self.start_button.pack(side="left", padx=20, pady=10)
+
+        self.stop_button = tk.Button(self.button_panel, text="Stop", width=5, height=2)
+        self.stop_button.pack(side="left", padx=20, pady=10)
 
         self._build_vitals_ui()
         self._build_waveform_ui()
@@ -124,7 +134,7 @@ class MonitorUI:
         self.index_resp = 0
         self.index_spo2 = 0
 
-        self._update_waveform()
+        self.update_waveform()
 
 
     def _add_vitals_row(self, parent, vital_type, row):
@@ -190,7 +200,7 @@ class MonitorUI:
     def update_blood_pressure(self, systolic, diastolic):
         self.blood_pressure.set(f"{systolic}/{diastolic}")
 
-    def _update_waveform(self):
+    def update_waveform(self):
         if self.index_ecg + self.window_size_ecg < len(ecg_data):
             self.line1.set_ydata(ecg_data[self.index_ecg:self.index_ecg + self.window_size_ecg])
             self.index_ecg += 5
@@ -205,5 +215,5 @@ class MonitorUI:
 
 
         self.canvas.draw()
-        self.root.after(20, self._update_waveform)
+        self.waveform_callback = self.root.after(20, self.update_waveform)
 
